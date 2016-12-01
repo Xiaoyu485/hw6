@@ -1,0 +1,17 @@
+Lat,Lon,ShortHand,Address,LoadingTime,Value,Volume,TimeWindowStart,TimeWindowEnd
+30.2489241733,-97.7499370173,HomeSlice,"Home Slice Pizza, 1415 S Congress Ave, Austin, TX",0.5,1,7,10,11
+30.2470238054,-97.750624593,EnotecaV,"Enoteca Vespaio, 1610 S Congress Ave, Austin, TX",0.5,2,5,8,11
+30.2636680538,-97.7381996855,Moonshine,"Moonshine Patio Bar and Grill, 303 Red River St, Austin, TX",0.5,2,10,15,17
+30.4153933733,-97.746609473,Rudys,"Rudys Country Store and Bar-B-Q, 11570 Research Blvd, Austin, TX",0.5,2,4,14,16
+30.24982208,-97.7495922416,Hopdoddy,"Hopdoddy Burger Bar, 1400 South Congress Ave, Austin, TX",0.5,3,15,8,10
+30.2479462779,-97.7502704629,SouthCong,"South Congress Cafe, 1600 S Congress Ave, Austin, TX",0.5,3,26,8,9
+30.2575842467,-97.7601507837,Uchi,"Uchi, 801 S Lamar Blvd, Austin, TX",0.5,5,3,14.5,15
+30.2454610276,-97.881170923,JackAllen,"Jack Allens Kitchen, 7720 Hwy 71 W, Austin, TX",0.5,2,12,11,13
+30.3686196746,-97.6818670994,Chuys,"Chuys, 2320 N I H 35, Austin, TX",0.5,3,17,9,10
+30.2442469865,-97.751630177,Magnolia,"Magnolia Cafe, 1920 S Congress Ave, Austin, TX",0.5,2,16,9,14
+30.2702963604,-97.7505858011,HutsHamburger,"Huts Hamburgers, 807 W 6th St, Austin, TX",0.5,1,11,14,16
+30.2788620329,-97.7426023711,ClayPit,"Clay Pit, 1601 Guadalupe St, Austin, TX",0.5,3,35,8,10
+30.131865,-98.010276,SaltLick,"The Salt Lick Bar-B-Que, 18300 Fm 1826, Austin, TX",0.5,7,21,8,17
+30.2961270548,-97.7838043382,HulaHut,"Hula Hut, 3825 Lake Austin Blvd, Austin, TX",0.75,2,6,13,14
+30.4193731314,-97.3697897722,RRDonuts,"Round Rock Donuts, 106 W Liberty St, Austin, TX",0.5,1,1,14,17
+30.2904288274,-97.7345303708,ETC,"Engineering Teaching Center, 304 E 26 1/2 St, Austin, TX",0,0,0,8,17
