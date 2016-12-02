@@ -6,24 +6,19 @@ Created on Fri Oct 21 14:07:37 2016
 """
 import pandas
 import scipy
-import pyomo
-import pyomo.opt
-import pyomo.environ as pe
-import logging
-import networkx
-import geoplotter ##please use my changed version of geoplotter
-import matplotlib.pylab as pylab
+# import geoplotter ##please use my changed version of geoplotter
+
 
 
 class BuildNetwork():
     def __init__(self, fname='austin.csv'):
-        self.df = pandas.read_csv(fname)
+        # self.df = pandas.read_csv(fname)
         self.add = pandas.read_csv('addresses.csv')
-        self.plotter = geoplotter.GeoPlotter()
-        self.net = networkx.DiGraph(node_styles=dict(default=dict()),
-                                    edge_styles=dict(default=dict(color='blue', linewidths=0.1)))
-        self.nodearray = []
-        self.nodeframe = pandas.DataFrame(columns=['node'])
+        # self.plotter = geoplotter.GeoPlotter()
+        # self.net = networkx.DiGraph(node_styles=dict(default=dict()),
+        #                             edge_styles=dict(default=dict(color='blue', linewidths=0.1)))
+        # self.nodearray = []
+        # self.nodeframe = pandas.DataFrame(columns=['node'])
         self.E = []
 
     def getstart(self):  ##get float list of the start point coordinates
@@ -45,93 +40,93 @@ class BuildNetwork():
         self.df['End'] = self.end.x.astype(str) + ' ' + self.end.y.astype(str)
         self.endlist = list(zip(self.end.x, self.end.y))  ##list of end points (x,y)
 
-    def create_net(self):
-        """Draws a network on the map.
+    # def create_net(self):
+    #     """Draws a network on the map.
+    #
+    #     net should have the following attributes:
+    #         node_styles -- a dictionary of style dictionaries for nodes, including a 'default'
+    #         edge_styles -- a dictionary of style dictionaries for edges, including a 'default'
+    #
+    #     Each node/edge data dictionary has a 'style' entry that specifies the style to be looked up
+    #     in node_styles/edge_styles.  If no style is specified the default style is used.  Only attributes
+    #     of the default style are changed in plotting."""
+    #     for i in scipy.arange(len(self.start.x)):
+    #         node1 = self.df.Start[i]  ##shoter version of decimal by string conversion for node name
+    #         node2 = self.df.End[i]
+    #         self.net.add_node(node1, lon=self.start.x[i], lat=self.start.y[i], style='default')
+    #         self.net.add_node(node2, lon=self.end.x[i], lat=self.end.y[i], style='default')
+    #         if self.df.ONE_WAY[i] == 'FT':
+    #             self.net.add_edge(node1, node2, style='default', time=self.df.SECONDS[i])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #         elif self.df.ONE_WAY[i] == 'TF':
+    #             self.net.add_edge(node2, node1, style='default', time=self.df.SECONDS[i])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #         else:
+    #             self.net.add_edge(node1, node2, style='default', time=self.df.SECONDS[i])
+    #             self.net.add_edge(node2, node1, style='default', time=self.df.SECONDS[i])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #     self.nodearray = scipy.array(self.nodearray)
 
-        net should have the following attributes:
-            node_styles -- a dictionary of style dictionaries for nodes, including a 'default'
-            edge_styles -- a dictionary of style dictionaries for edges, including a 'default'
+    # def create_frame(self):## data frame for Pyomo use
+    #     self.nodearray = []
+    #     arclist = []
+    #     for i in scipy.arange(len(self.start.x)):
+    #         node1 = self.df.Start[i]  ##shoter version of decimal by string conversion for node name
+    #         node2 = self.df.End[i]
+    #         if self.df.ONE_WAY[i] == 'FT':
+    #             arclist.append([node1, node2, self.df.SECONDS[i]])  ##list for recording nodes used pyomo
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #         elif self.df.ONE_WAY[i] == 'TF':
+    #             arclist.append([node2, node1, self.df.SECONDS[i]])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #         else:
+    #             arclist.append([node1, node2, self.df.SECONDS[i]])
+    #             arclist.append([node2, node1, self.df.SECONDS[i]])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #             self.nodearray.append([self.start.x[i], self.start.y[i]])
+    #     self.arcframe = pandas.DataFrame(arclist, columns=['Start', 'End', 'Time'])
+    #     self.arcframe = self.arcframe.sort(['Time'], ascending=[1])
+    #     self.arcframe = self.arcframe.drop_duplicates(subset=['Start', 'End'], keep='first')
+    #     self.arcframe.set_index(['Start', 'End'], inplace=True)  ##dataframe of arcs for pyomo
 
-        Each node/edge data dictionary has a 'style' entry that specifies the style to be looked up
-        in node_styles/edge_styles.  If no style is specified the default style is used.  Only attributes
-        of the default style are changed in plotting."""
-        for i in scipy.arange(len(self.start.x)):
-            node1 = self.df.Start[i]  ##shoter version of decimal by string conversion for node name
-            node2 = self.df.End[i]
-            self.net.add_node(node1, lon=self.start.x[i], lat=self.start.y[i], style='default')
-            self.net.add_node(node2, lon=self.end.x[i], lat=self.end.y[i], style='default')
-            if self.df.ONE_WAY[i] == 'FT':
-                self.net.add_edge(node1, node2, style='default', time=self.df.SECONDS[i])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-            elif self.df.ONE_WAY[i] == 'TF':
-                self.net.add_edge(node2, node1, style='default', time=self.df.SECONDS[i])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-            else:
-                self.net.add_edge(node1, node2, style='default', time=self.df.SECONDS[i])
-                self.net.add_edge(node2, node1, style='default', time=self.df.SECONDS[i])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-        self.nodearray = scipy.array(self.nodearray)
-
-    def create_frame(self):## data frame for Pyomo use
-        self.nodearray = []
-        arclist = []
-        for i in scipy.arange(len(self.start.x)):
-            node1 = self.df.Start[i]  ##shoter version of decimal by string conversion for node name
-            node2 = self.df.End[i]
-            if self.df.ONE_WAY[i] == 'FT':
-                arclist.append([node1, node2, self.df.SECONDS[i]])  ##list for recording nodes used pyomo
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-            elif self.df.ONE_WAY[i] == 'TF':
-                arclist.append([node2, node1, self.df.SECONDS[i]])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-            else:
-                arclist.append([node1, node2, self.df.SECONDS[i]])
-                arclist.append([node2, node1, self.df.SECONDS[i]])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-                self.nodearray.append([self.start.x[i], self.start.y[i]])
-        self.arcframe = pandas.DataFrame(arclist, columns=['Start', 'End', 'Time'])
-        self.arcframe = self.arcframe.sort(['Time'], ascending=[1])
-        self.arcframe = self.arcframe.drop_duplicates(subset=['Start', 'End'], keep='first')
-        self.arcframe.set_index(['Start', 'End'], inplace=True)  ##dataframe of arcs for pyomo
-
-    def drawstreets(self):##Draw the big map
-        self.plotter.drawNetwork(self.net)
-        self.plotter.setZoom(-97.8526, 30.2147, -97.6264, 30.4323)
-        self.plotter.getAxes().get_xaxis().set_visible(False)
-        self.plotter.getAxes().get_yaxis().set_visible(False)
-
-    def drawaddresses(self):## Drop attaction points on the map
-        for i in scipy.arange(len(self.add.Lat)):
-            if self.add.Address[i] == 'Engineering Teaching Center, 304 E 26 1/2 St, Austin, TX':
-                self.plotter.drawPoints(self.add.Lon[i], self.add.Lat[i], color='green', s=1)
-            else:
-                self.plotter.drawPoints(self.add.Lon[i], self.add.Lat[i], color='red', s=1)
-
-    def findclosest(self):  ##data is a dictionary of the coordinates
-        self.add['Closest_Node'] = self.add['Lon']
-        self.addressarray = []
-        for i in scipy.arange(len(self.add.Lon)):
-            self.addressarray.append([self.add.Lon[i], self.add.Lat[i]])
-        self.addressarray = scipy.array(self.addressarray)
-        i = 0
-        for loc in self.addressarray:
-            dis = -scipy.sqrt(scipy.sum((self.nodearray - loc) * (self.nodearray - loc), axis=1))
-            idx = scipy.argmax(dis)
-            node = str(self.nodearray[idx][0]) + ' ' + str(self.nodearray[idx][1])
-            self.add.Closest_Node.iloc[i] = node
-            i += 1
-
-    def getSPNetworkx(self, id1, id2):##Networkx solution
-        start = self.add.Closest_Node.loc[id1]
-        end = self.add.Closest_Node.loc[id2]
-        route = networkx.shortest_path(self.net, source=start, target=end, weight='time')
-        return route
-    def getSPNetworkxtime(self, id1, id2):##Networkx solution
-        start = self.add.Closest_Node.loc[id1]
-        end = self.add.Closest_Node.loc[id2]
-        time = networkx.shortest_path_length(self.net, source=start, target=end, weight='time')
-        return time
+    # def drawstreets(self):##Draw the big map
+    #     self.plotter.drawNetwork(self.net)
+    #     self.plotter.setZoom(-97.8526, 30.2147, -97.6264, 30.4323)
+    #     self.plotter.getAxes().get_xaxis().set_visible(False)
+    #     self.plotter.getAxes().get_yaxis().set_visible(False)
+    #
+    # def drawaddresses(self):## Drop attaction points on the map
+    #     for i in scipy.arange(len(self.add.Lat)):
+    #         if self.add.Address[i] == 'Engineering Teaching Center, 304 E 26 1/2 St, Austin, TX':
+    #             self.plotter.drawPoints(self.add.Lon[i], self.add.Lat[i], color='green', s=1)
+    #         else:
+    #             self.plotter.drawPoints(self.add.Lon[i], self.add.Lat[i], color='red', s=1)
+    #
+    # def findclosest(self):  ##data is a dictionary of the coordinates
+    #     self.add['Closest_Node'] = self.add['Lon']
+    #     self.addressarray = []
+    #     for i in scipy.arange(len(self.add.Lon)):
+    #         self.addressarray.append([self.add.Lon[i], self.add.Lat[i]])
+    #     self.addressarray = scipy.array(self.addressarray)
+    #     i = 0
+    #     for loc in self.addressarray:
+    #         dis = -scipy.sqrt(scipy.sum((self.nodearray - loc) * (self.nodearray - loc), axis=1))
+    #         idx = scipy.argmax(dis)
+    #         node = str(self.nodearray[idx][0]) + ' ' + str(self.nodearray[idx][1])
+    #         self.add.Closest_Node.iloc[i] = node
+    #         i += 1
+    #
+    # def getSPNetworkx(self, id1, id2):##Networkx solution
+    #     start = self.add.Closest_Node.loc[id1]
+    #     end = self.add.Closest_Node.loc[id2]
+    #     route = networkx.shortest_path(self.net, source=start, target=end, weight='time')
+    #     return route
+    # def getSPNetworkxtime(self, id1, id2):##Networkx solution
+    #     start = self.add.Closest_Node.loc[id1]
+    #     end = self.add.Closest_Node.loc[id2]
+    #     time = networkx.shortest_path_length(self.net, source=start, target=end, weight='time')
+    #     return time
 
     # def drawroute(self, route,zoom1,zoom2,zoom3,zoom4):##draw a path from the networkx result
     #     routel = len(route)
@@ -212,28 +207,28 @@ class BuildNetwork():
     #     self.drawaddresses()
     #     self.drawroute(path,zoom1,zoom2,zoom3,zoom4)
     #     pylab.show()
-    def get_paths(self):
-        dict = {}
-        # path = {}
-        # times = {}
-        range = len(self.add.Lon)
-        for i in scipy.arange(range):
-            for j in scipy.arange(range):
-                if i != j:
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])] = {}
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['path'] = self.getSPNetworkx(i,j)
-                    a = float(self.getSPNetworkxtime(i, j))
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['time'] = a/3600
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['load'] = float(self.add.LoadingTime.iloc[j])
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['value'] = -float(self.add.Value.iloc[j])
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['start'] = float(self.add.TimeWindowStart.iloc[j])
-                    dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['end'] = float(self.add.TimeWindowEnd.iloc[j])
-                else:
-                    continue
-
-        self.data = pandas.DataFrame.from_dict(dict,orient='index')
-        self.data=self.data.reset_index()
-        return self.data
+    # def get_paths(self):
+    #     dict = {}
+    #     # path = {}
+    #     # times = {}
+    #     range = len(self.add.Lon)
+    #     for i in scipy.arange(range):
+    #         for j in scipy.arange(range):
+    #             if i != j:
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])] = {}
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['path'] = self.getSPNetworkx(i,j)
+    #                 a = float(self.getSPNetworkxtime(i, j))
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['time'] = a/3600
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['load'] = float(self.add.LoadingTime.iloc[j])
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['value'] = -float(self.add.Value.iloc[j])
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['start'] = float(self.add.TimeWindowStart.iloc[j])
+    #                 dict[(self.add.ShortHand.iloc[i], self.add.ShortHand.iloc[j])]['end'] = float(self.add.TimeWindowEnd.iloc[j])
+    #             else:
+    #                 continue
+    #
+    #     self.data = pandas.DataFrame.from_dict(dict,orient='index')
+    #     self.data=self.data.reset_index()
+    #     return self.data
 
     def create_dict(self):
         import pickle
@@ -253,21 +248,33 @@ class BuildNetwork():
         import random
         while self.E:
             vi=random.choice(self.E)
-            succ=list(self.add.ShortHand).remove(vi)
+            succ=self.add.ShortHand.tolist()
+            succ.remove(vi)
+            # 1/0
             for vj in succ:
+                print self.E
                 j = self.adds.index(vj)
-                trans_time = self.data.time[self.data.level_0 == vi and self.data.level_1 == vj]
-                dest_load = self.data.load[self.data.level_0 == vi and self.data.level_1 == vj]
-                dest_reven = self.data.value[self.data.level_0 == vi and self.data.level_1 == vj]
+                # trans_time = self.data.time[self.data.level_0 == vi and self.data.level_1 == vj]
+                # dest_load = self.data.load[self.data.level_0 == vi and self.data.level_1 == vj]
+                # dest_reven = self.data.value[self.data.level_0 == vi and self.data.level_1 == vj]
                 F = []
-                for numta in self.dict[vi]:
-                    if numta[j]  == 0:
+                for numta in self.step_dict[vi]:
+                    # 1/0
+                    if numta[j+3] == 0:
+                        # 1/0
                         F.append(self.reachability(numta,vi,vj,endtime))
-                combined  = F.append(self.dict[vj])##very important step, generate next lable, including test reachbability of other nodes
+                if self.step_dict[vj]:
+                    F.extend(self.step_dict[vj])##very important step, generate next lable, including test reachbability of other nodes
+                    combined = F
+                    # 1/0
+                else:
+                    combined = F
+                # 1/0
                 self.domination(combined)
-                if self.dict[vj] != combined:
-                    self.dict[vj] = combined
-                    self.E.append(vj)
+                if self.step_dict[vj] != combined:
+                    self.step_dict[vj] = combined
+                    if vj not in self.E:
+                        self.E.append(vj)
             self.E.remove(vi)
 
 
@@ -276,7 +283,7 @@ class BuildNetwork():
         from operator import itemgetter
         lists = inputlist
         sort_list = sorted(lists,key=itemgetter(2))
-        var=12 / 0
+        # var=12 / 0
         numtas = len(lists)
         j=0
         while j < numtas-1:
@@ -295,35 +302,36 @@ class BuildNetwork():
                 j=j+1
         return sort_list
 
-
-
-    def reachability(self,numta,vi,vj,endtime):
-        trans_time = self.data.time[self.data.level_0 == vi and self.data.level_1 == vj]
-        dest_load = self.data.load[self.data.level_0 == vi and self.data.level_1 == vj]
-        dest_reven = self.data.value[self.data.level_0 == vi and self.data.level_1 == vj]
-        j =self.add.ShortHand.tolist().index(vj)
+    def reachability(self,numta, vi, vj, endtime):
+        adds = self.add.ShortHand.tolist()
+        j = self.add.ShortHand.tolist().index(vj)
+        trans_time = self.data.time[self.data.level_0 == vi][self.data.level_1 == vj].values[0]
+        dest_load = self.data.load[self.data.level_0 == vi][self.data.level_1 == vj].values[0]
+        dest_reven = self.data.value[self.data.level_0 == vi][self.data.level_1 == vj].values[0]  ##mark
         F = []
         F.append(trans_time)
         F.append(-dest_load)
         F.append(1)
-        temp = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         temp[j] = 1
-        F.append(temp)
+        F.extend(temp)
         F.append(dest_reven)
-        new_numta = numta+F
+        new_numta = [x + y for x, y in zip(F, numta)]
         reach_vec = new_numta[3:19]
-        for i in scipy.range(reach_vec):
+        for i in scipy.arange(len(reach_vec)):
             if reach_vec[i] == 0:
-                if (new_numta[0]+self.data.time[self.data.level_0==vj and self.data.level_1==self.adds[i]])<=endtime:
-                    if (new_numta[0]+self.data.time[self.data.level_0==vj and self.data.level_1==self.adds[i]]<=self.add.TimeWindowEnd[self.add.ShortHand == self.adds[i]]):
+                # print ((self.data.time[self.data.level_0 == vj][self.data.level_1 == adds[i]].values[0]) <= endtime)
+                if (self.data.time[self.data.level_0 == vj][self.data.level_1 == adds[i]].values[0]) <= endtime:
+                    if (new_numta[0] + self.data.time[self.data.level_0 == vj][self.data.level_1 == adds[i]].values[0] <=
+                            self.add.TimeWindowEnd[self.add.ShortHand == adds[i]].values[0]):
                         continue
                     else:
                         reach_vec[i] = 1
                 else:
                     reach_vec[i] = 1
         new_numta[3:19] = reach_vec
+        new_numta[2] = sum(reach_vec)
         return new_numta
-
 
 
 
